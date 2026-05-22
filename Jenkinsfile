@@ -19,7 +19,7 @@ pipeline {
             steps {
 
                 git branch: 'main',
-                url: 'http://localhost:3000/siddharth/jenkins-hello-world.git'
+                url: 'https://github.com/Pathan-Meraj/jenkins-hello-worl.git'
 
                 bat 'mvn clean package -DskipTests=true'
 
