@@ -1,42 +1,32 @@
-pipeline {
+    pipeline {
     agent any
 
     tools {
-        maven 'Maven'
         jdk 'JDK21'
+        maven 'Maven'
     }
 
     stages {
 
-        stage('Maven Version') {
+        stage('Checkout Code') {
             steps {
-                bat 'echo Print Maven Version'
-                bat 'mvn -version'
+                git branch: 'main',
+                url: 'https://github.com/Pathan-Meraj/jenkins-hello-worl.git'
             }
         }
 
         stage('Build') {
             steps {
-
-                git branch: 'main',
-                url: 'https://github.com/Pathan-Meraj/jenkins-hello-worl.git'
-
                 bat 'mvn clean package -DskipTests=true'
-
-                archiveArtifacts 'target/hello-demo-*.jar'
             }
         }
 
-        stage('Test') {
+        stage('Deploy') {
             steps {
-
-                bat 'mvn clean test'
-
-                junit(
-                    testResults: 'target/surefire-reports/TEST-*.xml',
-                    keepProperties: true,
-                    keepTestNames: true
-                )
+                bat '''
+                if not exist C:\\deploy mkdir C:\\deploy
+                copy target\\*.jar C:\\deploy
+                '''
             }
         }
     }
