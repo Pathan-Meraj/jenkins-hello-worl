@@ -1,30 +1,54 @@
 pipeline {
-  agent any
-  stages {
-    stage('Maven Version') {
-      steps {
-        sh 'echo Print Maven Version'
-        sh 'mvn -version'
-      }
+    agent any
+
+    tools {
+        maven 'Maven'
+        jdk 'JDK21'
     }
 
-    stage('Build') {
-      steps {
-        git(branch: 'main', url: 'http://localhost:3000/siddharth/jenkins-hello-world.git')
-        sh 'mvn clean package -DskipTests=true'
-        archiveArtifacts 'target/hello-demo-*.jar'
-      }
+    stages {
+
+        stage('Maven Version') {
+            steps {
+                bat 'echo Print Maven Version'
+                bat 'mvn -version'
+            }
+        }
+
+        stage('Build') {
+            steps {
+
+                git branch: 'main',
+                url: 'http://localhost:3000/siddharth/jenkins-hello-world.git'
+
+                bat 'mvn clean package -DskipTests=true'
+
+                archiveArtifacts 'target/hello-demo-*.jar'
+            }
+        }
+
+        stage('Test') {
+            steps {
+
+                bat 'mvn clean test'
+
+                junit(
+                    testResults: 'target/surefire-reports/TEST-*.xml',
+                    keepProperties: true,
+                    keepTestNames: true
+                )
+            }
+        }
     }
 
-    stage('Test') {
-      steps {
-        sh 'mvn clean test'
-        junit(testResults: 'target/surefire-reports/TEST-*.xml', keepProperties: true, keepTestNames: true)
-      }
-    }
+    post {
 
-  }
-  tools {
-    maven 'M396'
-  }
+        success {
+            echo 'Pipeline executed successfully!'
+        }
+
+        failure {
+            echo 'Pipeline failed!'
+        }
+    }
 }
